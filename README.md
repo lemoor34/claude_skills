@@ -1,53 +1,67 @@
 # Claude Skills Library для lemoor34
 
 Персональная библиотека скиллов для:
-- 📚 Написания и редактирования книг (Die Nebelkrone, На краю)
-- 📱 Контента для Threads (Reinigung & Gartenpflege)
-- 📊 Meta Ads и Google Ads оптимизации
-- 🌐 GEO-SEO для fleissig-reinigung.ch и швейцарского рынка
+- 📚 написания и редактирования книг
+- 📱 контента для Threads
+- 📊 Meta Ads и Google Ads
+- 🌐 GEO-SEO и швейцарского рынка
 
 ## Структура
 
-```
-.
+```text
+claude_skills/
 ├── skills/
 │   ├── threads-content-reinigung-de-ch/
 │   ├── amazon-kdp-literary-finalizer-de/
 │   ├── storyscope-fiction-audit/
-│   ├── meta-ads-campaign-analyzer-swiss/
-│   ├── geo-seo-claude/
-│   └── skill-seekers/
-├── README.md
-└── INSTALLATION.md
+│   └── meta-ads-campaign-analyzer-swiss/
+└── README.md
 ```
 
-## Быстрый старт
+## Быстрый старт в Claude Code
 
-1. Клонируй репо: `git clone https://github.com/lemoor34/claude_skills.git ~/.claude/skills`
-2. Открой Claude Code
-3. Вызывай скиллы по имени в промптах
+Claude Code ищет персональные skills в `~/.claude/skills/<skill-name>/SKILL.md`, поэтому репозиторий лучше клонировать отдельно и сделать symlink.
+
+```bash
+git clone https://github.com/lemoor34/claude_skills.git ~/claude_skills
+mkdir -p ~/.claude/skills
+
+for d in ~/claude_skills/skills/*; do
+  ln -sfn "$d" ~/.claude/skills/"$(basename "$d")"
+done
+```
+
+После обновления репозитория:
+
+```bash
+cd ~/claude_skills && git pull
+```
+
+Claude Code обычно подхватывает изменения skills автоматически. Вызов конкретного skill:
+
+```text
+/storyscope-fiction-audit
+```
 
 ## Скиллы
 
-### 1. threads-content-reinigung-de-ch
-Генерация контента для Threads про уборку и уход за садом в немецкоязычной Швейцарии.
+### storyscope-fiction-audit
+Структурный аудит художественной прозы на базе StoryScope (COLM 2026): narrative skeleton, 30 core narrative features, genre/POV correction, поиск системных AI-типичных конструкций и приоритет структурной редакции до line-edit.
 
-### 2. amazon-kdp-literary-finalizer-de
+Содержит:
+- `SKILL.md` — основной workflow;
+- `reference.md` — полный справочник 30 features и long-form интерпретация;
+- `evals.md` — 4 smoke-test сценария.
+
+### amazon-kdp-literary-finalizer-de
 Финальная полировка литературных текстов для Amazon KDP Deutschland.
 
-### 3. storyscope-fiction-audit
-Структурный аудит художественной прозы по мотивам StoryScope (COLM 2026): сюжетный скелет, 30 core narrative features, поиск повторяющихся AI-типичных решений и приоритет структурной редакции до line-edit.
+### threads-content-reinigung-de-ch
+Генерация контента для Threads про уборку и уход за садом в немецкоязычной Швейцарии.
 
-### 4. meta-ads-campaign-analyzer-swiss
+### meta-ads-campaign-analyzer-swiss
 Анализ и оптимизация Meta Ads кампаний для швейцарского рынка.
-
-### 5. geo-seo-claude
-GEO-аудит и SEO-оптимизация для видимости в AI-search (Perplexity, ChatGPT-search).
-
-### 6. skill-seekers
-Конвертирование документации API в кастомные скиллы.
 
 ---
 
-Создано: май 2026
 Автор: lemoor34
