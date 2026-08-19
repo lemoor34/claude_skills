@@ -1,84 +1,42 @@
-# StoryScope Fiction Audit
-
-## Metadata
-```yaml
+---
 name: storyscope-fiction-audit
-category: Writing / Fiction / Narrative Analysis
-description: Структурный аудит художественной прозы по мотивам StoryScope (COLM 2026, arXiv:2604.03136v6). Ищет повторяющиеся AI-типичные решения на уровне темы, сюжета, времени, сенсорики, персонажей и раскрытия информации до line-edit/humanization.
-version: 1.0.0
-author: lemoor34
-languages: [Русский, English, Deutsch]
-tags: [fiction, narrative-audit, storyscope, ai-writing, long-form, editing, kdp, human-voice]
-source_paper: https://arxiv.org/abs/2604.03136
-source_code: https://github.com/jenna-russell/storyscope
-source_version: StoryScope v6, 2026-08-10
-```
-
-## Назначение
-
-Этот skill используется для **редакторского анализа художественной прозы на уровне конструкции истории**, а не для поиска отдельных «AI-слов», тире, длины предложений или других поверхностных маркеров.
-
-Он адаптирует идеи StoryScope к работе с главами, романами и сериями: сначала строит сюжетный скелет, затем проверяет повторяющиеся решения по 30 core narrative features, после чего предлагает минимальный набор структурных правок.
-
-### Главный принцип
-
-> Сначала исправляется архитектура истории, потом язык.
-
-Skill не должен «делать текст более человеческим» механическим добавлением флэшбеков, брендов, моральной неоднозначности, ошибок или лишних subplot'ов. Цель — **обнаружить чрезмерно предсказуемые авторские решения и вернуть истории вариативность**, сохраняя жанр, голос и замысел.
-
-## Научная база и ограничения
-
-StoryScope анализирует 61,608 историй, созданных по 10,272 параллельным промптам человеком и пятью LLM, и выделяет 304 narrative/style features. Narrative-only модель использует 257 признаков и показывает 93.2% macro-F1 для human-vs-AI; компактный набор из 30 core features — 84.8% macro-F1.
-
-**Важно:** исследование выполнено преимущественно на рассказах примерно по 5,000 слов. Поэтому этот skill:
-
-- не выдаёт «вероятность AI»;
-- не делает вывод об авторстве;
-- не превращает один признак в диагноз;
-- считает распределение признаков по сценам/главам важнее оценки одной главы;
-- снижает уверенность на коротких фрагментах;
-- учитывает жанровые нормы и выбранный POV.
-
-## Триггеры использования
-
-Используй skill, когда пользователь просит:
-
-- проверить главу/рассказ/роман на «машинность»;
-- сделать текст менее AI-похожим на структурном уровне;
-- проверить естественность художественной прозы до публикации;
-- найти слабые места сюжета, времени, персонажей, раскрытия информации;
-- провести финальный narrative audit книги;
-- сравнить две версии главы после структурной редакции;
-- проверить, не повторяет ли книга типичные LLM-паттерны;
-- подготовить художественный текст к последующей line-edit / KDP finalization.
-
-## Не использовать как
-
-- юридически значимый AI-детектор;
-- доказательство авторства;
-- способ «обмануть» конкретный детектор;
-- замену fact-checking, continuity audit или copy-edit;
-- основание для обязательного добавления всех human-elevated features.
-
+description: Structural audit for fiction using StoryScope-inspired narrative features. Use when reviewing a scene, chapter, short story, novel, or AI-assisted fiction for structural “machine-like” patterns, narrative naturalness, plot/revelation/character issues, or before line-edit/KDP finalization. Works in Russian, English, and German. Do not use as an authorship detector or to estimate AI probability.
 ---
 
-# Рабочий процесс
+# StoryScope Fiction Audit
 
-## Phase 0 — Task Lock
+Audit **narrative construction before prose style**. The goal is to detect repeated, overly tidy or over-explained narrative decisions and propose the smallest structural changes that improve the story without flattening genre, voice, or authorial intent.
 
-Перед анализом зафиксируй:
+This skill is an editorial adaptation of **StoryScope: Investigating idiosyncrasies in AI fiction**, COLM 2026, arXiv:2604.03136v6. The paper’s dataset contains 61,608 stories and 304 extracted features; its narrative-only classifier uses 257 narrative features, while a compact 30-feature core retains substantial signal. The study is on short fiction averaging roughly 4.7–5k words, so do **not** treat its correlations as universal rules for novels.
 
-1. Что анализируем: сцена / глава / несколько глав / весь роман.
-2. Жанр и поджанр.
-3. POV и narratorial distance.
-4. Что является авторским намерением и не должно быть «исправлено».
-5. Нужен ли только аудит или также план редакции.
+For the exact 30-feature reference and long-form interpretation, read [reference.md](reference.md).
+For smoke-test scenarios and expected behavior, read [evals.md](evals.md).
 
-Не переключайся на грамматику, пунктуацию, оформление KDP или маркетинг, если это не блокирует narrative audit.
+## Non-negotiable rules
 
-## Phase 1 — Narrative Skeleton
+- Never output an “AI probability” or claim authorship from this audit.
+- Never treat one feature as a diagnosis.
+- Never “humanize” by adding random typos, grammar errors, flashbacks, subplots, brands, reader address, moral ambiguity, or contradictions.
+- Never punish a genre convention merely because it correlates with an AI-elevated feature.
+- Always cite textual evidence for major findings.
+- Prefer **3–5 structural interventions maximum** per pass.
+- If the issue is only stylistic, say so instead of inventing a structural problem.
 
-Для каждой сцены создай компактную карту:
+## Phase 0 — Task lock
+
+Before analysis, determine from the available context:
+
+1. Scope: scene / chapter / several chapters / whole work.
+2. Genre and subgenre.
+3. POV and narratorial distance.
+4. Known authorial constraints or intentional devices.
+5. Whether the user wants audit only, revision plan, or before/after comparison.
+
+Do not drift into grammar, punctuation, KDP formatting, marketing, or fact-checking unless they block the narrative task.
+
+## Phase 1 — Build a narrative skeleton
+
+For each scene, extract only what the text supports:
 
 ```text
 SCENE ID:
@@ -88,15 +46,15 @@ LOCATION:
 CHARACTERS:
 IMMEDIATE GOAL:
 OBSTACLE:
-KEY ACTION/CHOICE:
+KEY ACTION / CHOICE:
 CONSEQUENCE:
 NEW INFORMATION / REVEAL:
 EMOTIONAL SHIFT:
 THEME SIGNAL:
-SCENE END STATE:
+END STATE:
 ```
 
-Для главы дополнительно:
+For a chapter or larger unit, also track:
 
 ```text
 PRIMARY ARC:
@@ -108,272 +66,84 @@ RESOLUTION MODE:
 OPEN QUESTIONS:
 ```
 
-Не оценивай стиль до завершения этого шага.
+Do not line-edit yet.
 
-## Phase 2 — 30 Core Narrative Features
+## Phase 2 — Select the right audit depth
 
-Оцени каждый признак только по наблюдаемым решениям текста. Для каждой оценки укажи **evidence**: сцену, эпизод или короткий фрагмент.
+### Quick chapter mode
+Use for ordinary chapter review. Evaluate the **5–10 features most relevant** to the actual text rather than mechanically filling all 30.
 
-### Editorial risk scale
+### Full 30-feature mode
+Use when the user explicitly asks for a full audit, the chapter is structurally important, or several suspicious patterns overlap.
+
+### Novel / multi-chapter mode
+Prefer this for long-form work. Audit distributions across scenes/chapters and look for repeated defaults rather than forcing every individual chapter to contain “human-elevated” techniques.
+
+### Before/after mode
+Compare versions at the level of narrative decisions. Distinguish structural change from a merely different wording of the same pattern.
+
+## Phase 3 — Score editorial risk, not authorship
+
+For each selected feature, use:
 
 ```text
-0 = не проявляется / нейтрально
-1 = локально, может быть осознанным решением
-2 = повторяется и начинает формировать паттерн
-3 = доминирует и заметно сужает вариативность истории
-N/A = неприменимо к жанру / форме / данному объёму
+0 = absent / neutral
+1 = local or plausibly intentional
+2 = repeated pattern worth attention
+3 = dominant pattern that narrows narrative variability
+N/A = not applicable to genre, form, POV, or available scope
 ```
 
-Это **не шкала «насколько текст AI»**. Она показывает только редакторский риск повторяемости решения.
+Every risk 2–3 must include evidence.
 
----
+Do not sum scores into a single probability. Instead group findings into patterns:
 
-## A. Thematic over-determination
+- thematic over-determination
+- sensory / embodied performativity
+- structural streamlining
+- temporal / revelation simplicity
+- narrative homogeneity
 
-### 1. Thematic Explicitness & Moralizing
-Проверить, насколько прямо история формулирует собственную тему или мораль.
+## Phase 4 — Correct for genre and intent
 
-**AI-elevated pattern:** смысл сначала показывается сценой, а затем ещё раз объясняется narrator/персонажем.
+Before recommending a change, ask:
 
-**Редакторский вопрос:** можно ли удалить объяснение, не потеряв смысл?
+**Could this feature be an intentional and effective genre/voice choice?**
 
-### 2. Moral / Philosophical Weighting
-Проверить, не превращается ли слишком много сцен в носители морального или философского тезиса.
+If yes, mark it:
 
-**Риск:** история постоянно доказывает, что она «о чём-то важном».
+`INTENTIONAL — KEEP`
 
-### 3. Thematic Unity
-Проверить, не работает ли почти каждый объект, разговор и subplot на одну и ту же тему.
+Examples:
 
-**Риск:** чрезмерно идеальная тематическая связность делает мир сконструированным.
+- cozy fiction may intentionally have strong spatial grounding and sensory attention;
+- literary fiction may intentionally sustain deep interior access;
+- detective fiction may favor strong causal continuity while still using complex revelation structure;
+- first-person memoir-like fiction may naturally address the reader;
+- epic fantasy may require many locations without that being a quality signal by itself.
 
-### 4. Narratorial Thematic Commentary
-Проверить, комментирует ли narrator тему поверх того, что уже можно понять из действий персонажей.
+## Phase 5 — Detect systemic patterns in long-form
 
-**Риск:** narrator подводит итог за читателя.
+The following are **editorial heuristics, not thresholds from the paper**.
 
-### 5. Dialogue Function — Philosophical Debate
-Проверить, не используется ли диалог слишком часто как удобный способ проговорить идеи автора.
+Treat a pattern as systemic when one or more are true:
 
-**Риск:** персонажи обсуждают тезисы вместо того, чтобы разговаривать как люди со своими целями.
+- the same decision dominates at least 3 independent scenes/chapters;
+- a risk-2/3 feature appears in roughly 30%+ of analyzed units;
+- several different features point to the same underlying construction problem.
 
-### 6. Reference Explicitness
-Проверить характер культурных/интертекстуальных ссылок.
+For fragments under ~1,500 words, lower confidence and do not generalize to the whole book.
 
-**AI-elevated:** преимущественно туманные, неназванные «эхо» и универсальные аллюзии.
+## Phase 6 — Prioritize structural fixes
 
-**Human-elevated в исследовании:** чаще встречается смешение явных и неявных ссылок.
+Choose no more than 3–5 interventions. Rank them by:
 
----
+1. cross-chapter impact;
+2. effect on reader experience;
+3. compatibility with authorial intent;
+4. low risk of breaking causality/continuity.
 
-## B. Sensory & embodied performativity
-
-### 7. Dominant Emotional Expression
-Проверить, каким способом чаще всего передаются эмоции.
-
-**AI-elevated:** embodied expression — сжатая грудь, пересохшее горло, дрожащие пальцы, учащённый пульс и т. п.
-
-**Human-elevated в core set:** иногда прямое называние эмоции.
-
-**Не исправлять механически:** цель — разнообразие способов выражения: действие, пауза, речь, прямое называние, внутреннее противоречие, отсутствие реакции.
-
-### 8. Setting as Psychological Mirror
-Проверить, слишком ли часто внешний мир буквально отражает внутреннее состояние героя.
-
-Пример риска: тревога = дождь, злость = гроза, надежда = рассвет.
-
-### 9. Environmental & Ecological Emphasis
-Проверить, не получает ли природа/окружение избыточное внимание без сюжетной функции.
-
-### 10. Dominant Sensory Modalities — Olfactory
-Проверить, не используется ли запах как автоматическая кнопка «погружения».
-
-### 11. Sensory Density
-Проверить плотность сенсорного описания.
-
-**Риск:** каждая важная сцена получает набор зрение + звук + запах + прикосновение независимо от фокуса персонажа.
-
-### 12. Depth of Interior Access
-Проверить, не находится ли текст постоянно глубоко внутри сознания героя.
-
-**Риск:** narrator объясняет внутреннее состояние в каждой сцене, не оставляя пространства внешнему действию и интерпретации читателя.
-
----
-
-## C. Structural streamlining
-
-### 13. Causal Chain Continuity
-Проверить, насколько идеально история движется по цепочке A → B → C → D.
-
-**Риск:** каждое событие очевидно существует только для следующего.
-
-Искать естественные задержки, побочные последствия, ошибки, несовпадение причин и результатов — но не добавлять их искусственно.
-
-### 14. Spatial Granularity
-Проверить, не описывается ли пространство с одинаковой детальностью во всех сценах.
-
-### 15. Agency in Resolution
-Проверить, не разрешается ли конфликт слишком регулярно именно «правильным выбором» протагониста.
-
-Допустимы смешанные исходы: другие люди, обстоятельства, цена прежних решений, случайность, неполный контроль.
-
-### 16. Character Introduction
-Проверить, как вводятся ключевые персонажи.
-
-**AI-elevated:** внешнее описание при первом появлении.
-
-Альтернативы: действие, реплика, чужой рассказ, конфликт, след персонажа до его появления.
-
-### 17. Subplot Integration
-Проверить наличие и функцию subplot'ов.
-
-**AI-elevated:** отсутствие subplot'ов.
-
-**Human-elevated:** чаще встречались тематически параллельные subplot'ы.
-
-**Не добавлять subplot ради галочки.** Он должен иметь собственную причинность и влияние на выборы персонажей.
-
-### 18. Resolution Mode
-Проверить, не заканчивается ли цепочка событий чрезмерно часто внутренним пониманием/принятием.
-
-Красный флаг: «герой наконец понял…» как универсальная кнопка финала.
-
-### 19. Opening Spatial Grounding
-Проверить, насколько регулярно начало сначала устанавливает место, время и физическую сцену, а уже потом запускает действие.
-
-Это не ошибка само по себе. Риск появляется при одинаковой структуре открытия многих глав.
-
-### 20. Pre-Threat Character Investment
-Проверить, не следует ли книга слишком аккуратной формуле: сначала познакомить и эмоционально привязать к герою, затем ввести угрозу.
-
-Искать вариативность порядка, если она естественна для жанра.
-
----
-
-## D. Intertextual richness
-
-### 21. Intertextual Strategy — Explicit Named Reference
-Проверить, допускает ли текст конкретные культурные объекты, когда это естественно миру книги.
-
-Для contemporary fiction это могут быть реальные книги, песни, места, бренды, исторические события.
-
-Для fantasy/sci-fi конкретность может быть внутренней: названные хроники, религиозные тексты, легенды, песни мира.
-
-**Не вставлять реальные бренды только для повышения «human score».**
-
----
-
-## E. Reader engagement
-
-### 22. Fourth-Wall Permeability
-Проверить, допускает ли выбранная форма повествования какие-либо осознанные отношения между рассказчиком и читателем.
-
-**N/A**, если жанр и POV предполагают полностью закрытый story-world.
-
-### 23. Direct Reader Address
-Проверить прямые обращения к читателю.
-
-Это **не рекомендация добавлять их**. Human-elevated correlation в StoryScope не делает прямое обращение универсально хорошим приёмом.
-
----
-
-## F. Temporal complexity & revelation
-
-### 24. Depth of Recontextualization After Surprise
-Проверить, меняет ли reveal понимание уже прочитанных сцен или только сообщает новый факт.
-
-Сильная recontextualization: после открытия читатель иначе понимает прежние действия/реплики.
-
-### 25. Chronological Discontinuity
-Проверить наличие и функцию временных скачков.
-
-Не требовать нелинейности. Оценивать, не является ли абсолютная линейность повторяющейся default-настройкой всей книги.
-
-### 26. Nonlinear Framing for Delayed Disclosure
-Проверить, используется ли время как средство управления раскрытием информации.
-
-Пример: причина показана после последствия, если это усиливает смысл, а не просто скрывает данные.
-
-### 27. Anachrony Intensity
-Проверить роль flashback/flashforward и других анахроний.
-
-Не путать количество с качеством: один сильный flashback может быть важнее десяти декоративных.
-
----
-
-## G. Narrative diversity
-
-### 28. Location Variety Scope
-Проверить, насколько физическое пространство истории разнообразно и функционально.
-
-Не раздувать географию без причины; важен диапазон пространственных задач, а не количество адресов.
-
-### 29. Dialogue-to-Narration Proportion
-Проверить баланс прямого диалога и пересказа разговоров.
-
-Не существует универсально правильного процента. Сигнал — однообразный режим на протяжении большого массива текста.
-
-### 30. Moral Polarity Toward Protagonist
-Проверить, насколько текст сам подсказывает читателю моральную оценку решений героя.
-
-**Human-elevated:** чаще ambivalent/mixed framing.
-
-Цель — не сделать героя «серым» искусственно, а проверить, допускают ли последствия и точки зрения более одной разумной интерпретации.
-
----
-
-# Phase 3 — Pattern Detection
-
-После 30-feature audit **не суммируй баллы в «AI probability»**.
-
-Сгруппируй признаки в системные паттерны:
-
-```text
-THEMATIC OVER-DETERMINATION
-SENSORY / EMBODIED PERFORMATIVITY
-STRUCTURAL STREAMLINING
-TEMPORAL / REVELATION SIMPLICITY
-NARRATIVE HOMOGENEITY
-```
-
-### Эвристика системности для long-form
-
-Это редакторская адаптация, а не порог из исследования.
-
-Считать паттерн системным, если выполняется одно из условий:
-
-- одно и то же решение доминирует минимум в 3 независимых сценах/главах;
-- признак с risk=2/3 повторяется примерно в 30%+ анализируемых единиц;
-- несколько разных features указывают на одну и ту же проблему конструкции.
-
-Для фрагмента <1500 слов не делать уверенных выводов о всей книге.
-
-# Phase 4 — Genre & Intent Correction
-
-Перед рекомендациями спросить: **может ли этот паттерн быть осознанной жанровой нормой?**
-
-Примеры:
-
-- детектив может требовать линейной причинности, но revelation architecture всё равно может быть сложной;
-- cozy fiction может сознательно иметь сильную spatial grounding и sensory density;
-- first-person memoir-like fiction может естественно обращаться к читателю;
-- epic fantasy может иметь высокую location variety, но это не делает текст автоматически «human»;
-- literary fiction может иметь высокий interior access как основной эстетический выбор.
-
-Если признак объясняется намерением, ставь `INTENTIONAL — KEEP`.
-
-# Phase 5 — Prioritization
-
-Выбери **не больше 3–5 изменений** за один редакторский проход.
-
-Приоритет:
-
-1. влияет ли паттерн на несколько глав;
-2. меняет ли он читательское восприятие, а не косметику;
-3. можно ли исправить его без разрушения авторского замысла;
-4. создаст ли правка новые причинно-следственные проблемы.
-
-### Формат рекомендации
+Use this format:
 
 ```text
 PROBLEM:
@@ -385,223 +155,96 @@ EXPECTED EFFECT:
 CONFIDENCE: High / Medium / Low
 ```
 
-# Phase 6 — Structural Revision
+Fix the **cause**, not the surface marker.
 
-Править причину, а не маркер.
+Example:
 
-### Плохо
+Bad fix: replace “his chest tightened” with another bodily reaction.
 
-```text
-AI-like: "Его грудь сжалась".
-Fix: заменить на "ладони похолодели".
-```
+Better fix: if 8 of 10 emotional beats rely on bodily metaphors, diversify the narrative function of emotion: choice, silence, misdirection, speech, direct naming, behavior, delayed reaction, or no expected reaction.
 
-### Лучше
+Bad fix: “no flashbacks → add two flashbacks.”
 
-```text
-Проблема: в 8 из 10 эмоциональных сцен реакция объясняется через тело.
-Fix: в части сцен оставить телесную реакцию, в других перенести эмоцию в выбор, ошибку,
-паузы, речь, прямое называние или отсутствие ожидаемой реакции.
-```
+Better fix: if all crucial information arrives in strict chronological order, identify one reveal that genuinely recontextualizes an earlier scene and restructure only around that reveal.
 
-### Плохо
+## Phase 7 — Re-audit
 
-```text
-Нет флэшбеков → добавить два флэшбека.
-```
-
-### Лучше
-
-```text
-Проблема: вся критическая информация выдаётся строго в причинном порядке.
-Fix: определить один reveal, который действительно изменит понимание более ранней сцены,
-и перестроить порядок раскрытия только вокруг него.
-```
-
-# Phase 7 — Re-audit
-
-После правки повторить Skeleton + затронутые features.
-
-Сравнить:
+After revision, compare:
 
 ```text
 BEFORE:
 AFTER:
-PATTERN REMOVED?
+PATTERN REDUCED?
 NEW SIDE EFFECTS?
-CHARACTER/CAUSAL CONTINUITY PRESERVED?
+CHARACTER / CAUSAL CONTINUITY PRESERVED?
 ```
 
-Не требовать снижения всех risk scores. Хороший роман может сознательно иметь сильные значения по нескольким AI-elevated features.
+Do not require all risk scores to go down. A strong novel may intentionally score high on several StoryScope-correlated features.
 
----
+## Default output
 
-# Режимы работы
+```markdown
+## StoryScope Audit — [work/chapter]
 
-## Mode A — Single Chapter Quick Audit
+**Scope:**
+**Confidence:** High / Medium / Low
+**Verdict:** 2–3 sentences. Never claim “this is AI”.
 
-Использовать для одной главы.
+### Narrative skeleton
+- ...
 
-Вывод:
+### Main structural patterns
+1. **[Pattern] — risk X**
+   - Evidence:
+   - Why it matters:
 
-1. Narrative skeleton.
-2. 5–10 релевантных features вместо искусственного заполнения всех 30.
-3. Top 3 structural risks.
-4. 1–3 предложения по правке.
-5. Уверенность и что нельзя заключить по одной главе.
+### Core-feature profile
+| Feature | Risk | Evidence | Action |
+|---|---:|---|---|
 
-## Mode B — Full 30-Feature Chapter Audit
+### Priority interventions
+1. ...
+2. ...
+3. ...
 
-Использовать, если глава длинная/ключевая или пользователь просит полный аудит.
+### Keep unchanged
+- strong intentional choices that should survive editing
 
-Вывод:
-
-- все 30 features;
-- evidence;
-- risk 0–3/N/A;
-- системные паттерны;
-- top 3–5 interventions.
-
-## Mode C — Multi-Chapter / Novel Audit
-
-Предпочтительный режим для романа.
-
-1. Разбить книгу по главам/сценам.
-2. Сделать skeleton для каждой единицы.
-3. Извлечь feature distribution.
-4. Искать повторяющиеся решения между главами.
-5. Отдельно проверить:
-   - одинаковые openings;
-   - одинаковые emotional beats;
-   - одинаковые resolution modes;
-   - одинаковую причинность;
-   - повторяющуюся thematic commentary;
-   - однотипную revelation architecture.
-6. Выдать book-level structural fingerprint.
-
-### Book-level output
-
-```text
-STORYSCOPE FICTION AUDIT
-Work:
-Genre:
-Scope:
-Confidence:
-
-1. EXECUTIVE VERDICT
-2. NARRATIVE SKELETON MAP
-3. TOP SYSTEMIC PATTERNS
-4. 30-FEATURE PROFILE
-5. CHAPTER DISTRIBUTION
-6. TOP 3–5 STRUCTURAL INTERVENTIONS
-7. DO-NOT-CHANGE ELEMENTS
-8. RE-AUDIT PLAN
+### Re-audit target
+- what to verify after revision
 ```
 
-## Mode D — Before/After Comparison
+## Integration order for fiction
 
-Сравнить версии A и B не по «красоте», а по изменению narrative decisions.
-
-Обязательно отметить:
-
-- что реально стало менее шаблонным;
-- что осталось тем же под новой формулировкой;
-- где новая версия потеряла ясность/характер;
-- была ли проблема структурной или изначально только стилистической.
-
----
-
-# Anti-Gaming Rules
-
-Никогда не предлагай следующие действия только ради «humanization»:
-
-- случайные опечатки;
-- намеренные грамматические ошибки;
-- бессмысленные противоречия;
-- случайные flashbacks;
-- лишние subplot'ы;
-- реальные бренды без контекста;
-- обязательное обращение к читателю;
-- искусственную моральную серость;
-- удаление логики ради хаоса;
-- чрезмерную неровность ритма как самоцель.
-
-Human writing в StoryScope характеризуется **большей вариативностью распределения решений**, а не единственным набором «правильных человеческих приёмов».
-
-# Integration with Other Skills
-
-### Перед `amazon-kdp-literary-finalizer-de`
-
-Для художественного текста порядок по умолчанию:
+When multiple skills are available, use this order unless the task says otherwise:
 
 ```text
 1. storyscope-fiction-audit
 2. continuity / character logic audit
 3. developmental edit
 4. prose naturalness / line edit
-5. amazon-kdp-literary-finalizer-de
+5. KDP finalizer / production checks
 ```
 
-Если structural audit выявил проблемы уровня 2–3, не начинать финальную полировку до решения ключевых structural issues.
+If this audit finds major risk-2/3 structural problems, do not spend the main pass polishing sentences that are likely to be rewritten.
 
-# Minimal Output Template
+## Quality gate
 
-Используй этот формат, если пользователь не просил иное:
+Before finalizing the audit, verify:
 
-```markdown
-## StoryScope Audit — [глава/книга]
+- [ ] I analyzed narrative decisions, not just wording.
+- [ ] Every major criticism has evidence.
+- [ ] I did not turn correlation into a universal writing rule.
+- [ ] I accounted for genre, POV, and authorial intent.
+- [ ] I did not mechanically add “human-elevated” features.
+- [ ] I limited the pass to 3–5 meaningful structural interventions.
+- [ ] I separated structural editing from line editing.
+- [ ] I did not output an AI probability or authorship claim.
+- [ ] I lowered confidence when the sample is too short.
+- [ ] I specified what to re-audit after changes.
 
-**Scope:**
-**Confidence:** High / Medium / Low
-**Verdict:** 2–3 предложения без заявления «это AI».
+## Sources
 
-### Narrative skeleton
-- ...
-
-### Главные паттерны
-1. **[Pattern] — risk 3**
-   - Evidence:
-   - Почему важно:
-
-2. **[Pattern] — risk 2**
-   - Evidence:
-   - Почему важно:
-
-### Core-feature profile
-| Feature | Risk | Evidence | Action |
-|---|---:|---|---|
-
-### Три приоритетные правки
-1. ...
-2. ...
-3. ...
-
-### Не трогать
-- элементы, которые являются сильным авторским выбором
-
-### Следующий проход
-- что проверить после редакции
-```
-
-# Quality Gate
-
-Перед финальным ответом проверь:
-
-- [ ] Я анализировал narrative decisions, а не только формулировки?
-- [ ] Для каждой крупной претензии есть evidence?
-- [ ] Я не выдал корреляцию StoryScope за универсальный закон хорошей литературы?
-- [ ] Я учёл жанр, POV и авторское намерение?
-- [ ] Я не предложил механически добавить human-elevated features?
-- [ ] Я выбрал максимум 3–5 структурных правок?
-- [ ] Я отделил structural edit от line edit?
-- [ ] Я не назвал результат «AI probability»?
-- [ ] Я обозначил неопределённость для короткого фрагмента?
-- [ ] После правок предусмотрен re-audit?
-
-# Source Notes
-
-Основа skill:
-
-- Jenna Russell, Rishanth Rajendhran, Chau Minh Pham, Mohit Iyyer, John Wieting. **StoryScope: Investigating idiosyncrasies in AI fiction.** COLM 2026, arXiv:2604.03136v6.
+- Russell, Rajendhran, Pham, Iyyer, Wieting. *StoryScope: Investigating idiosyncrasies in AI fiction.* COLM 2026, arXiv:2604.03136v6.
 - Official code/data: `jenna-russell/storyscope`.
-- В skill сохранены названия 30 core narrative features, но workflow, risk scale, long-form thresholds, режимы анализа и рекомендации являются редакторской адаптацией для работы с главами и романами, а не частью оригинального эксперимента.
+- This skill’s scoring, long-form thresholds, workflow, and revision policy are editorial adaptations, not claims made by the paper.
