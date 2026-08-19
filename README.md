@@ -13,6 +13,7 @@
 ├── skills/
 │   ├── threads-content-reinigung-de-ch/
 │   ├── amazon-kdp-literary-finalizer-de/
+│   ├── storyscope-fiction-audit/
 │   ├── meta-ads-campaign-analyzer-swiss/
 │   ├── geo-seo-claude/
 │   └── skill-seekers/
@@ -34,13 +35,16 @@
 ### 2. amazon-kdp-literary-finalizer-de
 Финальная полировка литературных текстов для Amazon KDP Deutschland.
 
-### 3. meta-ads-campaign-analyzer-swiss
+### 3. storyscope-fiction-audit
+Структурный аудит художественной прозы по мотивам StoryScope (COLM 2026): сюжетный скелет, 30 core narrative features, поиск повторяющихся AI-типичных решений и приоритет структурной редакции до line-edit.
+
+### 4. meta-ads-campaign-analyzer-swiss
 Анализ и оптимизация Meta Ads кампаний для швейцарского рынка.
 
-### 4. geo-seo-claude
+### 5. geo-seo-claude
 GEO-аудит и SEO-оптимизация для видимости в AI-search (Perplexity, ChatGPT-search).
 
-### 5. skill-seekers
+### 6. skill-seekers
 Конвертирование документации API в кастомные скиллы.
 
 ---
